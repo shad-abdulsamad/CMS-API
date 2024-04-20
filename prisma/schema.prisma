@@ -12,3 +12,65 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id       Int       @id @default(autoincrement())
+  username String    @db.VarChar(30)
+  password String    @db.VarChar(255)
+  email    String    @unique @db.VarChar(50)
+  role     String?   @db.VarChar(30)
+  contents Content[]
+  comments Comment[]
+}
+
+model Tag {
+  id          Int          @id @default(autoincrement())
+  tag_name    String       @db.VarChar(30)
+  contentTags ContentTag[]
+}
+
+model Content {
+  id              Int               @id @default(autoincrement())
+  user_id         Int
+  title           String            @db.VarChar(80)
+  body            String            @db.VarChar(255)
+  date_created    DateTime
+  user            User              @relation(fields: [user_id], references: [id])
+  comments        Comment[]
+  contentTags     ContentTag[]
+  categoryContent CategoryContent[]
+}
+
+model Comment {
+  id             Int      @id @default(autoincrement())
+  content_id     Int
+  user_id        Int
+  comment        String   @db.VarChar(255)
+  date_commented DateTime
+  content        Content  @relation(fields: [content_id], references: [id])
+  user           User     @relation(fields: [user_id], references: [id])
+}
+
+model ContentTag {
+  content_id Int
+  tag_id     Int
+  content    Content @relation(fields: [content_id], references: [id])
+  tag        Tag     @relation(fields: [tag_id], references: [id])
+
+  @@id([content_id, tag_id])
+}
+
+model Category {
+  id               Int               @id @default(autoincrement())
+  category_name    String            @db.VarChar(30)
+  categoryContents CategoryContent[]
+}
+
+model CategoryContent {
+  content_id  Int
+  category_id Int
+  content     Content  @relation(fields: [content_id], references: [id])
+  category    Category @relation(fields: [category_id], references: [id])
+
+  @@id([content_id, category_id])
+}
