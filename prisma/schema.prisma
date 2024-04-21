@@ -18,9 +18,14 @@ model User {
   username String    @db.VarChar(30)
   password String    @db.VarChar(255)
   email    String    @unique @db.VarChar(50)
-  role     String?   @db.VarChar(30)
+  role     Role      @default(USER)
   contents Content[]
   comments Comment[]
+}
+
+enum Role {
+  USER
+  ADMIN
 }
 
 model Tag {

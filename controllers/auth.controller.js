@@ -37,7 +37,7 @@ export const signin = async (req, res) => {
         
         const passwordMatch = bcrypt.compareSync(password, user.password);
         if (!passwordMatch) {
-            return res.status(401).json({ error: 'Invalid password' });
+            return res.status(401).json({ error: 'Wrong Credentials' });
         }
         
         const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -57,4 +57,4 @@ export const logout = (req,res)=>{
     } catch (error) {
         console.error(error);
     }
-}
+} 
