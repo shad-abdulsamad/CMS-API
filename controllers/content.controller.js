@@ -92,6 +92,8 @@ export const getSinglePost = async (req,res) =>{
       
     }
 }
+
+/* 
 export const updateContent = async (req, res) => {
   const { id } = req.params;
   const { title, body, tags, categoryName } = req.body;
@@ -103,10 +105,9 @@ export const updateContent = async (req, res) => {
     });
 
     if (!content) {
-      return res.status(404).json({ message: "Post does not exist" });
+      return res.status(404).json({ message: "Content does not exist" });
     }
 
-    // Update the content
     const updatedContent = await prisma.content.update({
       where: {
         id: parseInt(id)
@@ -114,13 +115,71 @@ export const updateContent = async (req, res) => {
       data: {
         title,
         body
-        // You can add more fields to update here
       }
     });
+
+  
 
     res.status(200).json({ message: "Content updated successfully", data: updatedContent });
   } catch (err) {
     console.error("Error Updating Content:", err);
     res.status(500).json({ message: "Internal Server Error", error: err.message });
+  }
+};  */
+
+
+export const updateContent = async (req, res) => {
+  const { id } = req.params; // Assuming the content ID is passed in the params
+  const { title, body, tags, categoryName } = req.body;
+  const token = req.headers.authorization;
+
+  try {
+    // Verify and decode the token to get the user ID
+    const decoded = jwt.verify(token, secret);
+    const userId = decoded.userId;
+
+    const content = await prisma.content.update({
+      where: {
+        id: parseInt(id), // Assuming the content ID is an integer
+      },
+      data: {
+        title,
+        body,
+      },
+    });
+
+    if (Array.isArray(tags) && tags.length > 0) {
+      const tagIds = await Promise.all(
+        tags.map(async (tagName) => {
+          const tag = await prisma.tag.create({
+            data: { tag_name: tagName },
+          });
+          return tag.id;
+        })
+      );
+      await prisma.contentTag.createMany({
+        data: tagIds.map((tagId) => ({
+          content_id: content.id,
+          tag_id: tagId,
+        })),
+      });
+    }
+
+    if (categoryName) {
+      const category = await prisma.category.create({
+        data: { category_name: categoryName },
+      });
+      await prisma.categoryContent.create({
+        data: {
+          content_id: content.id,
+          category_id: category.id,
+        },
+      });
+    }
+
+    return res.status(200).json({ message: "Content updated successfully", content });
+  } catch (error) {
+    console.error("Error updating content:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
