@@ -93,54 +93,20 @@ export const getSinglePost = async (req,res) =>{
     }
 }
 
-/* 
+
 export const updateContent = async (req, res) => {
   const { id } = req.params;
-  const { title, body, tags, categoryName } = req.body;
-  try {
-    const content = await prisma.content.findUnique({
-      where: {
-        id: parseInt(id)
-      }
-    });
-
-    if (!content) {
-      return res.status(404).json({ message: "Content does not exist" });
-    }
-
-    const updatedContent = await prisma.content.update({
-      where: {
-        id: parseInt(id)
-      },
-      data: {
-        title,
-        body
-      }
-    });
-
-  
-
-    res.status(200).json({ message: "Content updated successfully", data: updatedContent });
-  } catch (err) {
-    console.error("Error Updating Content:", err);
-    res.status(500).json({ message: "Internal Server Error", error: err.message });
-  }
-};  */
-
-
-export const updateContent = async (req, res) => {
-  const { id } = req.params; // Assuming the content ID is passed in the params
   const { title, body, tags, categoryName } = req.body;
   const token = req.headers.authorization;
 
   try {
-    // Verify and decode the token to get the user ID
+    
     const decoded = jwt.verify(token, secret);
     const userId = decoded.userId;
 
     const content = await prisma.content.update({
       where: {
-        id: parseInt(id), // Assuming the content ID is an integer
+        id: parseInt(id), 
       },
       data: {
         title,
@@ -181,5 +147,43 @@ export const updateContent = async (req, res) => {
   } catch (error) {
     console.error("Error updating content:", error);
     return res.status(500).json({ error: "Internal server error" });
+  }
+};
+export const deleteContent = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Delete related comments
+    await prisma.comment.deleteMany({
+      where: {
+        content_id: parseInt(id),
+      },
+    });
+
+    // Delete related content tags
+    await prisma.contentTag.deleteMany({
+      where: {
+        content_id: parseInt(id),
+      },
+    });
+
+    // Delete related category contents
+    await prisma.categoryContent.deleteMany({
+      where: {
+        content_id: parseInt(id),
+      },
+    });
+
+    // Finally, delete the content itself
+    await prisma.content.delete({
+      where: {
+        id: parseInt(id),
+      },
+    });
+
+    return res.status(200).json({ message: "Content deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting content:", error);
+    return res.status(500).json({ error: "Internal server error", error: error });
   }
 };
