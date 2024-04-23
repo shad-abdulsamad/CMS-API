@@ -13,7 +13,6 @@ export const createContent = async (req, res) => {
     const userId = decoded.userId;
     console.log(userId);
 
-    // Create the content
     const content = await prisma.content.create({
       data: {
         title,
@@ -23,7 +22,7 @@ export const createContent = async (req, res) => {
       },
     });
 
-    // Connect tags to the content
+
     if (Array.isArray(tags) && tags.length > 0) {
       const tagIds = await Promise.all(
         tags.map(async (tagName) => {
@@ -41,7 +40,7 @@ export const createContent = async (req, res) => {
       });
     }
 
-    // Create the category if it doesn't exist
+   
     if (categoryName) {
       const category = await prisma.category.create({
         data: { category_name: categoryName },
@@ -60,3 +59,36 @@ export const createContent = async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 };
+
+
+export const showPosts = async (req,res)=>{
+  try {
+     const posts = await prisma.content.findMany();
+     res.status(200).json(posts);
+    
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Failed to fetch users", because:error });
+  }
+}
+
+export const getSinglePost = async (req,res) =>{
+  const {id} = req.params;
+    try {
+      const post = await prisma.content.findUnique({
+        where:{
+          id:parseInt(id)
+        }
+      });
+
+      if(post){
+        res.status(200).json(post);
+      }else{
+        res.status(404).json({message:"Post not Found"});
+      }
+
+    } catch (err) {
+      res.status(500).json({message:"Internal Server Error", error:err });
+      
+    }
+}
