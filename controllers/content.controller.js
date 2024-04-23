@@ -92,3 +92,35 @@ export const getSinglePost = async (req,res) =>{
       
     }
 }
+export const updateContent = async (req, res) => {
+  const { id } = req.params;
+  const { title, body, tags, categoryName } = req.body;
+  try {
+    const content = await prisma.content.findUnique({
+      where: {
+        id: parseInt(id)
+      }
+    });
+
+    if (!content) {
+      return res.status(404).json({ message: "Post does not exist" });
+    }
+
+    // Update the content
+    const updatedContent = await prisma.content.update({
+      where: {
+        id: parseInt(id)
+      },
+      data: {
+        title,
+        body
+        // You can add more fields to update here
+      }
+    });
+
+    res.status(200).json({ message: "Content updated successfully", data: updatedContent });
+  } catch (err) {
+    console.error("Error Updating Content:", err);
+    res.status(500).json({ message: "Internal Server Error", error: err.message });
+  }
+};
