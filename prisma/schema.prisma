@@ -67,7 +67,7 @@ model ContentTag {
 
 model Category {
   id               Int               @id @default(autoincrement())
-  category_name    String            @db.VarChar(30)
+  category_name    String            @unique @db.VarChar(30)
   categoryContents CategoryContent[]
 }
 

@@ -41,10 +41,19 @@ export const createContent = async (req, res) => {
     }
 
    
+    // Check if categoryName exists
     if (categoryName) {
-      const category = await prisma.category.create({
-        data: { category_name: categoryName },
+      let category = await prisma.category.findUnique({
+        where: { category_name: categoryName },
       });
+
+      // If category doesn't exist, create a new one
+      if (!category) {
+        category = await prisma.category.create({
+          data: { category_name: categoryName },
+        });
+      }
+
       await prisma.categoryContent.create({
         data: {
           content_id: content.id,
