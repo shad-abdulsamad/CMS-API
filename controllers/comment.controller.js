@@ -39,3 +39,22 @@ export const createComment = async (req, res) => {
     }
 };
 
+
+
+export const getComments = async (req, res) => {
+    const { postId } = req.params;
+
+    try {
+        const comments = await prisma.comment.findMany({
+            where: {
+                content_id:postId
+            },
+          
+        });
+
+        res.status(200).json(comments);
+    } catch (error) {
+        console.error("Error fetching comments:", error);
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
+};
