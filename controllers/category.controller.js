@@ -70,3 +70,29 @@ export const updateCategory = async (req,res)=>{
         
     }
 }
+
+export const deleteCategory = async(req,res)=>{
+    const {id} = req.params;
+    try {
+         const existingCategory = await prisma.category.findUnique({
+            where:{
+                id:parseInt(id)
+            }
+        });
+
+        if(!existingCategory){
+            return res.status(404).json({message:"Category Does not exist"});
+        }
+
+        await prisma.category.delete({
+            where:{
+                id:parseInt(id)
+            }
+        });
+
+        res.status(200).json({message:"Category Deleted Successfully"});
+    } catch (err) {
+        return res.status(500).json({message:"Internal Server Error", error:err.message});
+        
+    }
+}
