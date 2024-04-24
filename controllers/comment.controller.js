@@ -58,3 +58,20 @@ export const getComments = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
+
+export const deleteComment = async (req,res)=>{
+     const {postId} = req.params;
+     try {
+            await prisma.comment.deleteMany({
+                where:{
+                   content_id:postId
+                }
+            });
+    
+        res.status(200).json({message:"comment deleted successfully"});
+        
+     } catch (err) {
+        return res.status(500).json({message:"Internal Server Error",error:err.message});
+        
+     }
+}
