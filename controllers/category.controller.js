@@ -39,3 +39,34 @@ export const getCategories = async(req,res)=>{
         
     }
 }
+
+export const updateCategory = async (req,res)=>{
+    const {categoryName} = req.body;
+    const {id} = req.params;
+    try {
+        const existingCategory = await prisma.category.findUnique({
+            where:{
+                id:parseInt(id)
+            }
+        });
+
+        if(!existingCategory){
+            return res.status(404).json({message:"Category Does not exist"});
+        }
+
+        await prisma.category.update({
+            where:{
+                id:parseInt(id)
+            },
+            data:{
+                category_name:categoryName
+            }
+        });
+
+        return res.status(201).json({message:"Category Updated Successfully", categoryName});
+        
+    } catch (err) {
+        return res.status(500).json({message:"Internal Server Error", error:err});
+        
+    }
+}
