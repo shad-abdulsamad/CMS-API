@@ -85,7 +85,6 @@ export const updateUser = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        // Hash the new password if provided
         let hashedPassword = existingUser.password;
         if (password) {
             hashedPassword = await bcrypt.hash(password, 10);
@@ -96,9 +95,9 @@ export const updateUser = async (req, res) => {
                 id: parseInt(id)
             },
             data: {
-                username: name || existingUser.username, // Update username
+                username: name || existingUser.username,
                 email: email || existingUser.email,
-                password: hashedPassword, // Update password
+                password: hashedPassword,
             }
         });
 

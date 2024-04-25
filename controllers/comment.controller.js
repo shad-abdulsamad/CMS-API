@@ -59,19 +59,42 @@ export const getComments = async (req, res) => {
     }
 };
 
-export const deleteComment = async (req,res)=>{
-     const {postId} = req.params;
-     try {
-            await prisma.comment.deleteMany({
-                where:{
-                   content_id:postId
+
+export const deleteComment = async (req, res) => {
+    const { postId,commentId } = req.params;
+    const token = req.headers.authorization;
+    
+    if (!token) {
+        return res.status(401).json({ message: "Unauthorized: Token missing" });
+    }
+
+    try {
+        const decoded = jwt.verify(token, secret);
+        const userId = decoded.userId;
+        
+        const comment = await prisma.comment.findUnique({
+            where: {
+                id: parseInt(commentId)
+            }
+        });
+
+        if (!comment) {
+            return res.status(404).json({ message: "Comment Not Found" });
+        }
+        
+        if (comment.user_id === parseInt(userId) || decoded.role === "ADMIN") {
+            await prisma.comment.delete({
+                where: {
+                    id: parseInt(commentId)
                 }
             });
-    
-        res.status(200).json({message:"comment deleted successfully"});
-        
-     } catch (err) {
-        return res.status(500).json({message:"Internal Server Error",error:err.message});
-        
-     }
+
+            return res.status(200).json({ message: "Comment deleted successfully" });
+        } else {
+            return res.status(403).json({ message: "Unauthorized: You are not allowed to delete this comment" });
+        }
+    } catch (error) {
+        console.error("Error deleting Comment:", error);
+        return res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
 }
