@@ -1,7 +1,9 @@
 import { PrismaClient } from "@prisma/client"
 import bcrypt from "bcryptjs"
+import jwt from "jsonwebtoken"
 
 const prisma = new PrismaClient();
+const secret = "jwtsecretkey";
 
 export const getUsers = async(req,res)=>{
     try {
@@ -32,31 +34,41 @@ export const getSingleUser = async (req,res)=>{
     }
 }
 
-export const deleteUser = async (req,res)=>{
-    const {id} = req.params;
+export const deleteUser = async (req, res) => {
+    const { id } = req.params;
+    const token = req.headers.authorization;
+
     try {
+        const decoded = jwt.verify(token, secret);
+        const userId = decoded.userId;
+
         const user = await prisma.user.findUnique({
-            where:{
-                id:parseInt(id)
+            where: {
+                id: parseInt(id)
             }
         });
 
-        if(!user){
-            res.status(404).json({message:"User Not Found"});
+        if (!user) {
+            return res.status(404).json({ message: "User Not Found" });
         }
 
-        await prisma.user.delete({
-            where:{
-                id:parseInt(id)
-            }
-        });
-        res.status(200).json({ message: "User deleted successfully", deletedUser: user });
-        
+        // Check if the user is an admin or the owner of the account
+        if (decoded.role === "ADMIN" || user.id === userId) {
+            await prisma.user.delete({
+                where: {
+                    id: parseInt(id)
+                }
+            });
+            return res.status(200).json({ message: "User deleted successfully", deletedUser: user });
+        } else {
+            return res.status(403).json({ message: "Unauthorized: You can only delete your own account" });
+        }
     } catch (error) {
-        console.error("Error deleting User:",error);
-        res.status(500).json({message:"Internal Server Error", error:error});
+        console.error("Error deleting User:", error);
+        return res.status(500).json({ message: "Internal Server Error", error: error });
     }
 }
+
 
 
 export const updateUser = async (req, res) => {

@@ -8,6 +8,6 @@ const router = express.Router();
 router.get("/",authenticate,authorize(["ADMIN"]), getUsers);
 router.get("/:id",authenticate, getSingleUser);
 router.put("/:id", authenticate, updateUser );
-router.delete("/:id", authenticate, authorize(["ADMIN"]), deleteUser);
+router.delete("/:id", authenticate, authorize(["ADMIN","USER"]), deleteUser);
 
 export default router;
