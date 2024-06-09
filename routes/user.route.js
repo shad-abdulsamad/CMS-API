@@ -6,9 +6,9 @@ import { getUsers, getSingleUser, deleteUser, updateUser, createUserByAdmin } fr
 const router = express.Router();
 
 router.post("/", createUserByAdmin);
-router.get("/",authenticate,authorize(["ADMIN"]), getUsers);
+router.get("/", getUsers);
 router.get("/:id",authenticate, getSingleUser);
 router.put("/:id", authenticate, updateUser );
-router.delete("/:id", authenticate, authorize(["ADMIN","USER"]), deleteUser);
+router.delete("/:id", deleteUser);
 
 export default router;

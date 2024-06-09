@@ -52,7 +52,6 @@ export const deleteUser = async (req, res) => {
             return res.status(404).json({ message: "User Not Found" });
         }
 
-        // Check if the user is an admin or the owner of the account
         if (decoded.role === "ADMIN" || user.id === userId) {
             await prisma.user.delete({
                 where: {

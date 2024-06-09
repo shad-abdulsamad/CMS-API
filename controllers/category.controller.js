@@ -27,18 +27,20 @@ export const createCategory = async (req, res) => {
     }
 };
 
-export const getCategories = async(req,res)=>{
+export const getCategories = async (req, res) => {
     try {
-        const categories = await prisma.category.findMany();
-        if(categories){
-            return res.status(500).json(categories);
-        }
-        
+        const categories = await prisma.category.findMany({
+            select: {
+                id: true,
+                category_name: true,
+            },
+        });
+        return res.status(200).json(categories);
     } catch (err) {
-        return res.status(500).json({message:"Internal Server Error", error:err});
-        
+        return res.status(500).json({ message: "Internal Server Error", error: err });
     }
-}
+};
+
 
 export const updateCategory = async (req,res)=>{
     const {categoryName} = req.body;
