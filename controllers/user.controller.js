@@ -85,7 +85,7 @@ export const updateUser = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        let hashedPassword = existingUser.password;
+        const hashedPassword = existingUser.password;
         if (password) {
             hashedPassword = await bcrypt.hash(password, 10);
         }
@@ -107,3 +107,22 @@ export const updateUser = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 }
+
+export const createUserByAdmin = async (req, res) => {
+    try {
+        const { username, email, password, role } = req.body;
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = await prisma.user.create({
+            data: {
+                username,
+                email,
+                password: hashedPassword, 
+                role
+            }
+        });
+        res.status(201).json(newUser);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error creating user' });
+    }
+};
