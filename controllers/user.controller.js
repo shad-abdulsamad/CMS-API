@@ -125,3 +125,36 @@ export const createUserByAdmin = async (req, res) => {
         res.status(500).json({ error: 'Error creating user' });
     }
 };
+
+export const updateUserByAdmin = async (req, res) => {
+    const { id } = req.params;
+    const { username, email, role } = req.body;
+
+    try {
+        
+        if (!username || !email || !role) {
+            return res.status(400).json({ message: 'Username, email, and role are required' });
+        }
+
+        const user = await prisma.user.findUnique({
+            where: { id: Number(id) },
+        });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const updatedUser = await prisma.user.update({
+            where: { id: Number(id) },
+            data: {
+                username,
+                email,
+                role,
+            },
+        });
+
+        res.status(200).json({ message: 'User updated successfully', user: updatedUser });
+    } catch (error) {
+        console.error('Error updating user by admin:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
