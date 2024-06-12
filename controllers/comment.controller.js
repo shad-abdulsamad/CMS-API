@@ -98,3 +98,36 @@ export const deleteComment = async (req, res) => {
         return res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 }
+
+export const getAllComments = async (req, res) => {
+    try {
+        const comments = await prisma.comment.findMany();
+        
+        res.json(comments);
+    } catch (error) {
+        console.error("Failed to retrieve comments:", error);
+        res.status(500).send("Error retrieving comments");
+    }
+};
+
+
+export const deleteCommentByAdmin = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const deletedComment = await prisma.comment.delete({
+            where: { id: parseInt(id) },
+        });
+
+        if (!deletedComment) {
+            return res.status(404).json({ message: "Comment not found" });
+        }
+
+        res.status(200).json({ message: "Comment deleted successfully", deletedComment });
+    } catch (error) {
+        if (error.code === 'P2025') {
+            return res.status(404).json({ message: "Comment not found" });
+        }
+        res.status(500).json({ message: "Server error", error });
+    }
+};

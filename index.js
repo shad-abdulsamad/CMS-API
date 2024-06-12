@@ -18,7 +18,7 @@ app.use("/api/auth",authRouter);
 app.use("/api/users",userRouter);
 app.use("/api/posts", contentRouter);
 app.use("/api/categories", categoryRouter );
-app.use("/api/posts", commentRouter);
+app.use("/api/comments", commentRouter);
 app.listen(3000, ()=>{
     console.log("server is running on port 3000");
 }); 
