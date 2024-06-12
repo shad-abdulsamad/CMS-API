@@ -2,7 +2,8 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export const createCategory = async (req, res) => {
+
+export const createCategoryByAdmin = async (req, res) => {
     const { categoryName } = req.body;
     try {
         const existingCategory = await prisma.category.findUnique({
@@ -15,13 +16,13 @@ export const createCategory = async (req, res) => {
             return res.status(400).json({ message: "Category Already Exists" });
         }
 
-        await prisma.category.create({
+        const newCategory = await prisma.category.create({
             data: {
                 category_name: categoryName
             }
         });
 
-        return res.status(201).json({ message: "Category Created Successfully", categoryName });
+        return res.status(201).json(newCategory);
     } catch (err) {
         return res.status(500).json({ message: "Internal Server Error", error: err.message });
     }

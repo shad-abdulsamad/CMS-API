@@ -1,8 +1,8 @@
 import express from "express";
-import { createCategory, getCategories, updateCategoryByAdmin, deleteCategoryByAdmin, bulkDeleteCategories } from "../controllers/category.controller.js";
+import {  getCategories, updateCategoryByAdmin, deleteCategoryByAdmin, bulkDeleteCategories, createCategoryByAdmin } from "../controllers/category.controller.js";
 const router = express.Router(); 
 
-router.post("/",createCategory);
+router.post("/",createCategoryByAdmin);
 router.get("/", getCategories);
 router.put("/:id", updateCategoryByAdmin);
 router.delete("/:id", deleteCategoryByAdmin);
