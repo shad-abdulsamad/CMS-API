@@ -73,31 +73,7 @@ export const updateCategory = async (req,res)=>{
     }
 }
 
-export const deleteCategory = async(req,res)=>{
-    const {id} = req.params;
-    try {
-         const existingCategory = await prisma.category.findUnique({
-            where:{
-                id:parseInt(id)
-            }
-        });
 
-        if(!existingCategory){
-            return res.status(404).json({message:"Category Does not exist"});
-        }
-
-        await prisma.category.delete({
-            where:{
-                id:parseInt(id)
-            }
-        });
-
-        res.status(200).json({message:"Category Deleted Successfully"});
-    } catch (err) {
-        return res.status(500).json({message:"Internal Server Error", error:err.message});
-        
-    }
-}
 
 
 export const updateCategoryByAdmin = async (req, res) => {
@@ -112,5 +88,35 @@ export const updateCategoryByAdmin = async (req, res) => {
         res.json(updatedCategory);
     } catch (err) {
         res.status(500).json({ error: 'Failed to update category' });
+    }
+};
+
+export const deleteCategoryByAdmin = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        await prisma.category.delete({
+            where: { id: Number(id) },
+        });
+        res.json({ message: 'Category deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to delete category' });
+    }
+};
+
+export const bulkDeleteCategories = async (req, res) => {
+    const { ids } = req.body;
+
+    try {
+        await prisma.category.deleteMany({
+            where: {
+                id: {
+                    in: ids.map((id) => Number(id)),
+                },
+            },
+        });
+        res.json({ message: 'Categories deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to delete categories' });
     }
 };
