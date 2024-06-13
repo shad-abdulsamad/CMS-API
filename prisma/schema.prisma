@@ -34,6 +34,7 @@ model Content {
   title           String            @db.VarChar(80)
   body            String            @db.VarChar(255)
   date_created    DateTime
+  image           String?           @db.VarChar(255)
   user            User              @relation(fields: [user_id], references: [id], onDelete: Cascade)
   comments        Comment[]
   contentTags     ContentTag[]

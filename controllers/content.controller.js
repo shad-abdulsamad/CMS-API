@@ -162,28 +162,28 @@ export const deleteContent = async (req, res) => {
   const { id } = req.params;
 
   try {
-    // Delete related comments
+    
     await prisma.comment.deleteMany({
       where: {
         content_id: parseInt(id),
       },
     });
 
-    // Delete related content tags
+    
     await prisma.contentTag.deleteMany({
       where: {
         content_id: parseInt(id),
       },
     });
 
-    // Delete related category contents
+
     await prisma.categoryContent.deleteMany({
       where: {
         content_id: parseInt(id),
       },
     });
 
-    // Finally, delete the content itself
+
     await prisma.content.delete({
       where: {
         id: parseInt(id),
@@ -195,4 +195,39 @@ export const deleteContent = async (req, res) => {
     console.error("Error deleting content:", error);
     return res.status(500).json({ error: "Internal server error", error: error });
   }
+};
+
+
+
+export const createContentByAdmin = async (req, res) => {
+    try {
+        const { title, category,content } = req.body;
+        const userId = 1; // Replace with authenticated user ID
+
+        let imagePath = null;
+        if (req.file) {
+            imagePath = `/uploads/${req.file.filename}`;
+        }
+
+        const newContent = await prisma.content.create({
+            data: {
+                user_id: userId,
+                title,
+                body: content,
+                date_created: new Date(),
+                image: imagePath,
+                categoryContent: {
+                    create: {
+                        category_id: parseInt(category)
+                    }
+                },
+               
+            }
+        });
+
+        res.status(201).json(newContent);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
+    }
 };

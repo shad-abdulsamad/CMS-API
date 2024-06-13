@@ -1,13 +1,12 @@
 import express from "express";
-import { createContent, showPosts, getSinglePost,updateContent, deleteContent } from "../controllers/content.controller.js";
-import { authenticate } from "../middleware/authenticate.js";
+import { showPosts, getSinglePost,updateContent, deleteContent, createContentByAdmin } from "../controllers/content.controller.js";
 
 const router = express.Router();
 
-router.post("/", authenticate,createContent);
-router.get("/", authenticate ,showPosts);
-router.get("/:id", authenticate, getSinglePost);
-router.put("/:id", authenticate, updateContent);
-router.delete("/:id", authenticate, deleteContent);
+router.post("/", createContentByAdmin);
+router.get("/",showPosts);
+router.get("/:id",  getSinglePost);
+router.put("/:id",  updateContent);
+router.delete("/:id", deleteContent);
 
 export default router;
