@@ -199,9 +199,9 @@ export const deleteContent = async (req, res) => {
 
 
 
-export const createContentByAdmin = async (req, res) => {
+ export const createContentByAdmin = async (req, res) => {
     try {
-        const { title, category,content } = req.body;
+        const { title, category, content } = req.body;
         const userId = 1; // Replace with authenticated user ID
 
         let imagePath = null;
@@ -230,4 +230,5 @@ export const createContentByAdmin = async (req, res) => {
         console.error(error);
         res.status(500).json({ error: error.message });
     }
-};
+}; 
+

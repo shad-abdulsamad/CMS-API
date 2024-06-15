@@ -22,12 +22,6 @@ enum Role {
   ADMIN
 }
 
-model Tag {
-  id          Int          @id @default(autoincrement())
-  tag_name    String       @db.VarChar(30)
-  contentTags ContentTag[]
-}
-
 model Content {
   id              Int               @id @default(autoincrement())
   user_id         Int
@@ -37,7 +31,6 @@ model Content {
   image           String?           @db.VarChar(255)
   user            User              @relation(fields: [user_id], references: [id], onDelete: Cascade)
   comments        Comment[]
-  contentTags     ContentTag[]
   categoryContent CategoryContent[]
 }
 
@@ -49,15 +42,6 @@ model Comment {
   date_commented DateTime
   content        Content  @relation(fields: [content_id], references: [id])
   user           User     @relation(fields: [user_id], references: [id])
-}
-
-model ContentTag {
-  content_id Int
-  tag_id     Int
-  content    Content @relation(fields: [content_id], references: [id])
-  tag        Tag     @relation(fields: [tag_id], references: [id])
-
-  @@id([content_id, tag_id])
 }
 
 model Category {
