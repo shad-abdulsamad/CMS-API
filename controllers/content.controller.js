@@ -1,4 +1,6 @@
 import { PrismaClient } from "@prisma/client";
+import path from "path";
+import fs from "fs";
 
 const prisma = new PrismaClient();
 const secret = "jwtsecretkey";
@@ -142,5 +144,72 @@ export const getPosts = async (req, res) => {
 
 
 export const updateContent = async (req, res) => {
+  const { id } = req.params;
+  const { title, category, body } = req.body;
+  const image = req.file;
+
+  try {
     
+    const post = await prisma.content.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+      include: {
+        categoryContent: true,
+      },
+    });
+
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+
+    const updateData = {
+      title,
+      body,
+      date_created: new Date(),
+    };
+
+    let imagePath = post.image;
+    if (image) {
+     
+      if (post.image) {
+        fs.unlink(path.join('uploads', post.image), (err) => {
+          if (err) {
+            console.error("Failed to delete old image:", err);
+          }
+        });
+      }
+      
+      imagePath = `/uploads/${image.filename}`;
+      updateData.image = imagePath;
+    }
+
+    const updatedPost = await prisma.content.update({
+      where: {
+        id: parseInt(id),
+      },
+      data: updateData,
+    });
+
+    if (category) {
+      await prisma.categoryContent.deleteMany({
+        where: {
+          content_id: parseInt(id),
+        },
+      });
+
+      await prisma.categoryContent.create({
+        data: {
+          content_id: parseInt(id),
+          category_id: parseInt(category),
+        },
+      });
+    }
+
+    res.status(200).json(updatedPost);
+  } catch (err) {
+    console.error("Error updating post:", err);
+    res.status(500).json({ message: "Internal Server Error", error: err.message });
+  }
 };
