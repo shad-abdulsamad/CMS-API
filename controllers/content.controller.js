@@ -27,47 +27,6 @@ const secret = "jwtsecretkey";
 }
  
 
-
-
-export const deleteContent = async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    
-    await prisma.comment.deleteMany({
-      where: {
-        content_id: parseInt(id),
-      },
-    });
-
-    
-    await prisma.contentTag.deleteMany({
-      where: {
-        content_id: parseInt(id),
-      },
-    });
-
-
-    await prisma.categoryContent.deleteMany({
-      where: {
-        content_id: parseInt(id),
-      },
-    });
-
-
-    await prisma.content.delete({
-      where: {
-        id: parseInt(id),
-      },
-    });
-
-    return res.status(200).json({ message: "Content deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting content:", error);
-    return res.status(500).json({ error: "Internal server error", error: error });
-  }
-};
-
  export const createContentByAdmin = async (req, res) => {
     try {
         const { title, category, content } = req.body;
@@ -212,4 +171,28 @@ export const updateContent = async (req, res) => {
     console.error("Error updating post:", err);
     res.status(500).json({ message: "Internal Server Error", error: err.message });
   }
+};
+
+export const deleteContentByAdmin = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const contentId = parseInt(id);
+        await prisma.categoryContent.deleteMany({
+            where: { content_id: contentId },
+        });
+
+        await prisma.comment.deleteMany({
+            where: { content_id: contentId },
+        });
+
+        const deletedContent = await prisma.content.delete({
+            where: { id: contentId },
+        });
+
+        res.status(200).json({ message: "Content deleted successfully", deletedContent });
+    } catch (error) {
+        console.error("Error deleting content:", error);
+        res.status(500).json({ message: "Failed to delete content", error: error.message });
+    }
 };

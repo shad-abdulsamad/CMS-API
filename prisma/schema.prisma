@@ -40,7 +40,7 @@ model Comment {
   user_id        Int
   comment        String   @db.VarChar(255)
   date_commented DateTime
-  content        Content  @relation(fields: [content_id], references: [id])
+  content        Content  @relation(fields: [content_id], references: [id], onDelete: Cascade)
   user           User     @relation(fields: [user_id], references: [id])
 }
 
