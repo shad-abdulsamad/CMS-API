@@ -8,13 +8,14 @@ datasource db {
 }
 
 model User {
-  id       Int       @id @default(autoincrement())
-  username String    @db.VarChar(30)
-  password String    @db.VarChar(255)
-  email    String    @unique @db.VarChar(50)
-  role     Role      @default(USER)
-  contents Content[]
-  comments Comment[]
+  id           Int       @id @default(autoincrement())
+  username     String    @db.VarChar(30)
+  password     String    @db.VarChar(255)
+  email        String    @unique @db.VarChar(50)
+  role         Role      @default(USER)
+  contents     Content[]
+  comments     Comment[]
+  date_created DateTime  @default(now())
 }
 
 enum Role {

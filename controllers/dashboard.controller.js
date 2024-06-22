@@ -97,3 +97,40 @@ export const CommentPerPost = async (req, res) => {
         res.status(500).json({ error: "Internal server error", error:error.message });
     }
 };
+
+
+
+
+export const UserGrowthPerMonth = async (req, res) => {
+    try {
+        const users = await prisma.user.findMany({
+            select: {
+                date_created: true,
+            },
+        });
+
+        // Count users created per month
+        const userGrowth = users.reduce((acc, user) => {
+            const month = user.date_created.getMonth(); // Get the month (0-11)
+            const year = user.date_created.getFullYear(); // Get the year
+            const key = `${year}-${month}`;
+            
+            if (!acc[key]) {
+                acc[key] = 0;
+            }
+            acc[key] += 1;
+            return acc;
+        }, {});
+
+        // Format the data for the frontend (example format)
+        const formattedData = Object.keys(userGrowth).map(key => ({
+            month: key,
+            users: userGrowth[key],
+        }));
+
+        res.json(formattedData);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
