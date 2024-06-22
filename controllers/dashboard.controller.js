@@ -49,3 +49,26 @@ export const PostsPerCategory = async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 };
+
+
+
+export const UserRoleDistribution = async (req, res) => {
+    try {
+        const userCount = await prisma.user.count({
+            where: {
+                role: 'USER'
+            }
+        });
+
+        const adminCount = await prisma.user.count({
+            where: {
+                role: 'ADMIN'
+            }
+        });
+
+        res.json({ users: userCount, admins: adminCount });
+    } catch (error) {
+        console.error("Error fetching user role distribution:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
