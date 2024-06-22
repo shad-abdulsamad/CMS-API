@@ -134,3 +134,26 @@ export const UserGrowthPerMonth = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
+export const getUniqueVisitorsData = async (req, res) => {
+    try {
+        const visitorsData = await prisma.visitor.findMany({
+            select: {
+                date: true,
+                uniqueCount: true
+            },
+            orderBy: {
+                date: 'asc'
+            }
+        });
+
+        const data = visitorsData.map(entry => ({
+            date: entry.date.toISOString().slice(0, 10), // Format date as YYYY-MM-DD
+            uniqueCount: entry.uniqueCount
+        }));
+
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: 'Error fetching unique visitors data' });
+    }
+};

@@ -18,6 +18,12 @@ model User {
   date_created DateTime  @default(now())
 }
 
+model Visitor {
+  id          Int      @id @default(autoincrement())
+  date        DateTime @default(now())
+  uniqueCount Int
+}
+
 enum Role {
   USER
   ADMIN
