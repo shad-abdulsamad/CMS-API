@@ -12,7 +12,6 @@ import userRouter from "./routes/user.route.js";
 import path from "path";
 import { v4 as uuidv4 } from 'uuid';
 
-
 dotenv.config();
 
 const app = express();
@@ -39,7 +38,7 @@ app.use("/api/users", userRouter);
 app.use("/api/posts", upload.single('image'), contentRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/comments", commentRouter);
-app.use("/api/dashboard",dashboardRouter);
+app.use("/api/dashboard", dashboardRouter); 
 app.use('/uploads', express.static('uploads'));
 
 app.listen(3000, () => {
