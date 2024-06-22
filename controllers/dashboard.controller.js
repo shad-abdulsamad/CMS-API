@@ -24,3 +24,28 @@ export const PostsPerUser = async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 };
+
+
+
+export const PostsPerCategory = async (req, res) => {
+    try {
+        const postsPerCategory = await prisma.category.findMany({
+            select: {
+                category_name: true,
+                _count: {
+                    select: { categoryContents: true },
+                },
+            },
+        });
+
+        const data = postsPerCategory.map(category => ({
+            categoryName: category.category_name,
+            postCount: category._count.categoryContents,
+        }));
+
+        res.json(data);
+    } catch (error) {
+        console.error("Error fetching posts per category:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};

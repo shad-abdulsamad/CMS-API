@@ -196,31 +196,3 @@ export const deleteContentByAdmin = async (req, res) => {
         res.status(500).json({ message: "Failed to delete content", error: error.message });
     }
 };
-
-export const getPostsPerCategory = async (req, res) => {
-  try {
-    const categoryContentCounts = await prisma.category.findMany({
-      include: {
-        categoryContents: {
-          select: {
-            _count: {
-              select: { content_id: true },
-            },
-          },
-        },
-      },
-    });
-
-    const result = categoryContentCounts.map((category) => ({
-      categoryName: category.category_name,
-      contentCount: category.categoryContents._count.content_id,
-    }));
-
-    res.json(result);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'An error occurred while fetching the data' });
-  } finally {
-    await prisma.$disconnect();
-  }
-};
