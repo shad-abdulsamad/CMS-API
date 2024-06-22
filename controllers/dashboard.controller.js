@@ -72,3 +72,28 @@ export const UserRoleDistribution = async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 };
+
+export const CommentPerPost = async (req, res) => {
+    try {
+        const commentsPerPost = await prisma.content.findMany({
+            select: {
+                id: true,
+                title: true,
+                _count: {
+                    select: { comments: true },
+                },
+            },
+        });
+
+        const formattedData = commentsPerPost.map(post => ({
+            postId: post.id,
+            postTitle: post.title,
+            commentCount: post._count.comments,
+        }));
+
+        res.json(formattedData);
+    } catch (error) {
+        console.error("Error fetching comments per post:", error);
+        res.status(500).json({ error: "Internal server error", error:error.message });
+    }
+};
