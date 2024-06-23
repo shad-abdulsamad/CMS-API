@@ -148,12 +148,24 @@ export const getUniqueVisitorsData = async (req, res) => {
         });
 
         const data = visitorsData.map(entry => ({
-            date: entry.date.toISOString().slice(0, 10), // Format date as YYYY-MM-DD
+            date: entry.date.toISOString().slice(0, 10), 
             uniqueCount: entry.uniqueCount
         }));
 
         res.json(data);
     } catch (error) {
         res.status(500).json({ error: 'Error fetching unique visitors data' });
+    }
+};
+
+export const getVisitorTypeData = async (req, res) => {
+    try {
+        const newVisitors = await prisma.visitor.count({ where: { isNew: true } });
+        const returningVisitors = await prisma.visitor.count({ where: { isNew: false } });
+
+        res.json({ newVisitors, returningVisitors });
+    } catch (error) {
+        console.error("Error fetching visitor type data:", error);
+        res.status(500).json({ error: "Internal server error" });
     }
 };
