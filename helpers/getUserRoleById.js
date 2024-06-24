@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client"
 
 const prisma = new PrismaClient();
 
-export const getUserRoleById = async (userId) => {
+ const getUserRoleById = async (userId) => {
   try {
     const user = await prisma.user.findUnique({
       where: {
@@ -23,3 +23,5 @@ export const getUserRoleById = async (userId) => {
     throw error;
   }
 }
+
+export default getUserRoleById;
