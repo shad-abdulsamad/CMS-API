@@ -3,41 +3,6 @@ import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
 const secret = "jwtsecretkey";
-export const createComment = async (req, res) => {
-
-    const { text } = req.body;  
-    const { id } = req.params; 
-    console.log(id);
-    const token = req.headers.authorization;
-
-    const decoded = jwt.verify(token, secret);
-    const userId = decoded.userId;
-    console.log(userId);
-
-    
-    if (!text) {
-        return res.status(400).json({ message: "Comment text is required." });
-    }
-
-    try {
-    
-        const comment = await prisma.comment.create({
-    data: {
-        comment: text,         
-        content_id: parseInt(id),    
-        user_id: parseInt(userId) ,
-        date_commented:new Date()
-    },
-});
-
-
-        
-        res.status(201).json(comment);
-    } catch (error) {
-    
-        res.status(500).json({ message: "An error occurred while creating the comment.", error: error.message });
-    }
-};
 
 
 
@@ -129,5 +94,90 @@ export const deleteCommentByAdmin = async (req, res) => {
             return res.status(404).json({ message: "Comment not found" });
         }
         res.status(500).json({ message: "Server error", error });
+    }
+};
+
+/* 
+export const createCommentByAdmin = async (req, res) => {
+
+    const { text } = req.body;  
+    const { id } = req.params; 
+    console.log(id);
+    const token = req.headers.authorization;
+
+    const decoded = jwt.verify(token, secret);
+    const userId = decoded.userId;
+    console.log(userId);
+
+    
+    if (!text) {
+        return res.status(400).json({ message: "Comment text is required." });
+    }
+
+    try {
+    
+        const comment = await prisma.comment.create({
+    data: {
+        comment: text,         
+        content_id: parseInt(id),    
+        user_id: parseInt(userId) ,
+        date_commented:new Date()
+    },
+});
+
+        res.status(201).json(comment);
+    } catch (error) {
+    
+        res.status(500).json({ message: "An error occurred while creating the comment.", error: error.message });
+    }
+};
+ */
+
+export const createCommentByAdmin = async (req, res) => {
+    const { text } = req.body;
+    const { id } = req.params;
+    const token = req.headers.authorization.split(' ')[1];
+
+    let decoded;
+    try {
+        decoded = jwt.verify(token, secret);
+    } catch (error) {
+        return res.status(401).json({ message: 'Invalid token.' });
+    }
+
+    const userId = decoded.userId;
+
+    if (!text) {
+        return res.status(400).json({ message: "Comment text is required." });
+    }
+
+    try {
+        const comment = await prisma.comment.create({
+            data: {
+                comment: text,
+                content_id: parseInt(id),
+                user_id: parseInt(userId),
+                date_commented: new Date()
+            },
+        });
+
+        res.status(201).json(comment);
+    } catch (error) {
+        res.status(500).json({ message: "An error occurred while creating the comment.", error: error.message });
+    }
+};
+
+
+export const getPostsForComments = async (req, res) => {
+    try {
+        const posts = await prisma.content.findMany({
+            select: {
+                id: true,
+                title: true
+            }
+        });
+        res.status(200).json(posts);
+    } catch (error) {
+        res.status(500).json({ message: "An error occurred while retrieving the posts.", error: error.message });
     }
 };

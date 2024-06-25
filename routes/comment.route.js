@@ -1,15 +1,14 @@
 import express from "express";
-import { createComment, deleteComment, getComments, getAllComments, deleteCommentByAdmin } from "../controllers/comment.controller.js";
-import { authenticate } from "../middleware/authenticate.js";
-import { authorize } from "../middleware/authorize.js";
+import { deleteComment, getComments, getAllComments, deleteCommentByAdmin, createCommentByAdmin, getPostsForComments } from "../controllers/comment.controller.js";
 
 const router = express.Router();
 
-router.post("/:id/comments",authenticate,createComment);
 router.get("/:id/comments",getComments);
-router.delete("/:postId/comments/:commentId", authenticate, authorize(["ADMIN","USER"]), deleteComment);
+router.delete("/:postId/comments/:commentId", deleteComment);
 
 router.get("/", getAllComments);
 router.delete("/:id", deleteCommentByAdmin);
+router.post("/:id",createCommentByAdmin);
+router.get("/posts", getPostsForComments);
 
 export default router;
