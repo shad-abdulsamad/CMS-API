@@ -140,3 +140,22 @@ export const EditCommentByAdmin = async (req, res) => {
         res.status(500).json({ message: 'Error updating comment', error: err.message });
     }
 };
+
+
+export const deleteMultipleCommentsByAdmin = async (req, res) => {
+    const { ids } = req.body; 
+
+    try {
+        await prisma.comment.deleteMany({
+            where: {
+                id: {
+                    in: ids,
+                },
+            },
+        });
+        res.status(200).json({ message: "Comments deleted successfully" });
+    } catch (error) {
+        console.error('Error deleting comments:', error);
+        res.status(500).json({ message: "An error occurred while deleting comments" });
+    }
+};
