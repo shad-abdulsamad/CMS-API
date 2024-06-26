@@ -87,27 +87,6 @@ export const getPostsForComments = async (req, res) => {
     }
 };
 
-export const EditCommentByAdmin = async (req, res) => {
-    const { id } = req.params; 
-    const { text } = req.body; 
-
-    try {
-        const comment = await Comment.findById(id);
-        if (!comment) {
-            return res.status(404).json({ message: 'Comment not found' });
-        }
-
-        comment.text = text;
-        await comment.save();
-
-        res.status(200).json({ message: 'Comment updated successfully', comment });
-    } catch (err) {
-        res.status(500).json({ message: 'Error updating comment', error: err.message });
-    }
-};
-
-
-
 export const getSingleComment = async (req, res) => {
     const { id } = req.params;
 
@@ -133,5 +112,52 @@ export const getSingleComment = async (req, res) => {
     } catch (err) {
         console.error('Error fetching comment:', err.message);
         res.status(500).json({ error: 'Internal server error', details: err.message });
+    }
+};
+
+
+/* 
+export const EditCommentByAdmin = async (req, res) => {
+    const { id } = req.params; 
+    const { text } = req.body; 
+
+    try {
+        const comment = await Comment.findById(id);
+        if (!comment) {
+            return res.status(404).json({ message: 'Comment not found' });
+        }
+
+        comment.text = text;
+        await comment.save();
+
+        res.status(200).json({ message: 'Comment updated successfully', comment });
+    } catch (err) {
+        res.status(500).json({ message: 'Error updating comment', error: err.message });
+    }
+};
+
+ */
+
+export const EditCommentByAdmin = async (req, res) => {
+    const { id } = req.params; 
+    const { text } = req.body; 
+
+    try {
+        const comment = await prisma.comment.findUnique({
+            where: { id: parseInt(id) }
+        });
+
+        if (!comment) {
+            return res.status(404).json({ message: 'Comment not found' });
+        }
+
+        const updatedComment = await prisma.comment.update({
+            where: { id: parseInt(id) },
+            data: { comment: text }
+        });
+
+        res.status(200).json({ message: 'Comment updated successfully', comment: updatedComment });
+    } catch (err) {
+        res.status(500).json({ message: 'Error updating comment', error: err.message });
     }
 };
